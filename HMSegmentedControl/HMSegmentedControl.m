@@ -246,15 +246,17 @@
     if (index >= self.sectionTitles.count) {
         return CGSizeZero;
     }
-    
+
     id title = self.sectionTitles[index];
     CGSize size = CGSizeZero;
-    BOOL selected = (index == self.selectedSegmentIndex) ? YES : NO;
     if ([title isKindOfClass:[NSString class]] && !self.titleFormatter) {
-        NSDictionary *titleAttrs = selected ? [self resultingSelectedTitleTextAttributes] : [self resultingTitleTextAttributes];
-        size = [(NSString *)title sizeWithAttributes:titleAttrs];
+        CGSize selectedSize = [(NSString *)title sizeWithAttributes:[self resultingSelectedTitleTextAttributes]];
+        CGSize deSelectedSize = [(NSString *)title sizeWithAttributes:[self resultingTitleTextAttributes]];
+        size = selectedSize.width > deSelectedSize.width ? selectedSize : deSelectedSize;
     } else if ([title isKindOfClass:[NSString class]] && self.titleFormatter) {
-        size = [self.titleFormatter(self, title, index, selected) size];
+        CGSize selectedSize = [self.titleFormatter(self, title, index, YES) size];
+        CGSize deSelectedSize = [self.titleFormatter(self, title, index, NO) size];
+        size = selectedSize.width > deSelectedSize.width ? selectedSize : deSelectedSize;
     } else if ([title isKindOfClass:[NSAttributedString class]]) {
         size = [(NSAttributedString *)title size];
     } else {
